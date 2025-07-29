@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import PyPDF
+import pypdf
 import io
 import re
 from datetime import datetime
