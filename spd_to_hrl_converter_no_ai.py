@@ -306,7 +306,7 @@ def main():
     # How it works section
     with st.expander("ℹ️ How This Works", expanded=False):
         st.markdown("""
-        <div style="color: white;">
+        <div style="color: Black;">
         This tool uses advanced pattern matching to extract benefit information:
         
         • ✅ **Searches for 40+ benefit categories** (office visits, emergency room, etc.)  
