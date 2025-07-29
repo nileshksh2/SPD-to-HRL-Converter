@@ -401,17 +401,18 @@ def main():
     
     # Display extracted data
     if not st.session_state.extracted_data.empty:
-        # Single card container for the entire section
-        st.markdown('<div class="custom-card" style="margin-top: 2rem;">', unsafe_allow_html=True)
-        st.markdown('<h3 class="card-header">📊 Extracted Benefits</h3>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="custom-card" style="margin-top: 2rem;">
+            <h3 class="card-header">📊 Extracted Benefits</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Tabs for better organization
         tab1, tab2 = st.tabs(["📝 Review & Edit", "➕ Add Manual Entry"])
         
         with tab1:
-            # Create a copy for editing to avoid modifying the original
             edited_df = st.data_editor(
-                st.session_state.extracted_data.copy(),
+                st.session_state.extracted_data,
                 column_config={
                     "service_category": st.column_config.TextColumn(
                         "Service Category",
@@ -436,24 +437,22 @@ def main():
                 },
                 hide_index=True,
                 use_container_width=True,
-                num_rows="dynamic",
-                key="benefits_editor"
+                num_rows="dynamic"
             )
-            # Update session state with edited data
             st.session_state.extracted_data = edited_df
         
         with tab2:
             col1, col2 = st.columns(2)
             with col1:
-                new_category = st.text_input("Service Category", placeholder="e.g., Specialist Visit", key="new_category_input")
-                new_in_network = st.text_input("In-Network Coverage", placeholder="e.g., $40 copay", key="new_in_network_input")
+                new_category = st.text_input("Service Category", placeholder="e.g., Specialist Visit")
+                new_in_network = st.text_input("In-Network Coverage", placeholder="e.g., $40 copay")
             with col2:
-                new_out_network = st.text_input("Out-of-Network Coverage", placeholder="e.g., 70% after deductible", key="new_out_network_input")
-                new_file = st.text_input("Source File", value="Manual Entry", key="new_file_input")
+                new_out_network = st.text_input("Out-of-Network Coverage", placeholder="e.g., 70% after deductible")
+                new_file = st.text_input("Source File", value="Manual Entry")
             
             col1, col2, col3 = st.columns([1, 1, 1])
             with col2:
-                if st.button("➕ Add Entry", use_container_width=True, key="add_manual_entry_btn"):
+                if st.button("➕ Add Entry", use_container_width=True):
                     if new_category:
                         new_entry = pd.DataFrame([{
                             'service_category': new_category,
@@ -465,18 +464,16 @@ def main():
                             [st.session_state.extracted_data, new_entry], 
                             ignore_index=True
                         )
-                        st.success("✅ Entry added successfully!")
+                        st.experimental_rerun()
                     else:
                         st.error("Please enter a service category")
         
-        # Close the card div after all content
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Action buttons outside the card
+        # Action buttons
+        st.markdown('<div class="action-buttons">', unsafe_allow_html=True)
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            if st.button("📥 Export to Excel", use_container_width=True, key="export_excel_btn"):
+            if st.button("📥 Export to Excel", use_container_width=True):
                 output = io.BytesIO()
                 with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                     edited_df.to_excel(writer, index=False, sheet_name='Benefits')
@@ -486,15 +483,16 @@ def main():
                     label="💾 Download",
                     data=output,
                     file_name=f"benefits_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    key="download_excel_btn"
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
         
         with col4:
-            if st.button("🔄 Generate HRL", type="primary", use_container_width=True, key="generate_hrl_btn"):
+            if st.button("🔄 Generate HRL", type="primary", use_container_width=True):
                 with st.spinner("Generating HRL syntax..."):
                     hrl_syntax = generate_hrl_syntax(edited_df)
                     st.session_state.hrl_syntax = hrl_syntax
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Display extracted data
     if not st.session_state.extracted_data.empty:
