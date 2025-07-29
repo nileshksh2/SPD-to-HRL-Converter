@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import PyPDF2
+import pypdf
 import io
 import re
 from datetime import datetime
@@ -78,7 +78,7 @@ COVERAGE_PATTERNS = {
 def extract_text_from_pdf(file) -> str:
     """Extract text content from PDF file"""
     try:
-        pdf_reader = PyPDF2.PdfReader(file)
+        pdf_reader = pypdf.PdfReader(file)
         text = ""
         for page_num in range(len(pdf_reader.pages)):
             page = pdf_reader.pages[page_num]
