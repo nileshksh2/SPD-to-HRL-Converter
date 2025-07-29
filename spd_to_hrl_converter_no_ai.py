@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pypdf
+import PyPDF
 import io
 import re
 from datetime import datetime
@@ -401,11 +401,9 @@ def main():
     
     # Display extracted data
     if not st.session_state.extracted_data.empty:
-        st.markdown("""
-        <div class="custom-card" style="margin-top: 2rem;">
-            <h3 class="card-header">📊 Extracted Benefits</h3>
-        </div>
-        """, unsafe_allow_html=True)
+        # Single card container for the entire section
+        st.markdown('<div class="custom-card" style="margin-top: 2rem;">', unsafe_allow_html=True)
+        st.markdown('<h3 class="card-header">📊 Extracted Benefits</h3>', unsafe_allow_html=True)
         
         # Tabs for better organization
         tab1, tab2 = st.tabs(["📝 Review & Edit", "➕ Add Manual Entry"])
@@ -471,7 +469,10 @@ def main():
                     else:
                         st.error("Please enter a service category")
         
-        # Action buttons
+        # Close the card div after all content
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Action buttons outside the card
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
