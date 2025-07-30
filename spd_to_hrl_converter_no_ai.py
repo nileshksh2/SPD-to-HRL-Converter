@@ -28,19 +28,24 @@ st.markdown("""
     header {visibility: hidden;}
     
     /* CSS Reset and Variables */
-    :root {
-        --primary-bg: #CDD4DF;
-        --primary-bg-light: #CDD4DF;
-        --primary-bg-dark: #CDD4DF;
-        --text-white: #ffffff;
-        --text-light: rgba(255, 255, 255, 0.9);
-        --text-muted: rgba(255, 255, 255, 0.7);
-        --border-light: rgba(255, 255, 255, 0.2);
-        --surface-light: rgba(255, 255, 255, 0.1);
-        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        --radius: 0.5rem;
-    }
+ :root {
+, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    
+    --radius: 0.5rem;
+}
+    --primary-bg: #B0BEC5; /* Slightly darker than original */
+    --primary-bg-light: #CFD8DC; /* Light but with more contrast */
+    --primary-bg-dark: #90A4AE; /* Darker for contrast sections */
+
+    --text-white: #ffffff;
+    --text-light: #f0f0f0; /* Slightly darker than pure white */
+    --text-muted: #d0d0d0; /* More visible muted text */
+    
+    --border-light: rgba(0, 0, 0, 0.15); /* Darker border for visibility */
+    --surface-light: rgba(255, 255, 255, 0.2); /* Slightly more opaque */
+    
+    --shadow: 0 4px 6px -1px rgba(0, 0
     
     /* Global styles */
     .stApp {
