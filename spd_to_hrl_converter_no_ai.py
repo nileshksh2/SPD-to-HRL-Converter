@@ -236,7 +236,7 @@ def extract_benefits_from_text(text: str, filename: str) -> List[Dict]:
                     if 'after deductible' in full_match.lower():
                         in_network_cov += ' after deductible'
                         out_network_cov += ' after deductible'
-                    elif 'copay' in full_match.lower() or '
+                    elif 'copay' in full_match.lower() or '$' in full_match:
 
 def generate_hrl_syntax(benefits_df: pd.DataFrame) -> str:
     """Generate HRL syntax from extracted benefits"""
