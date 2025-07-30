@@ -29,9 +29,9 @@ st.markdown("""
     
     /* CSS Reset and Variables */
     :root {
-        --primary-bg: #6586BB;
-        --primary-bg-light: #ACC8E5;
-        --primary-bg-dark: #ACC8E5;
+        --primary-bg: #CDD4DF;
+        --primary-bg-light: #CDD4DF;
+        --primary-bg-dark: #CDD4DF;
         --text-white: #ffffff;
         --text-light: rgba(255, 255, 255, 0.9);
         --text-muted: rgba(255, 255, 255, 0.7);
