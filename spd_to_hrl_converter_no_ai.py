@@ -229,7 +229,7 @@ st.markdown("""
     }
     
     .stButton > button:hover {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(208, 126, 126, 0.9);
         box-shadow: var(--shadow-lg);
         transform: translateY(-1px);
     }
