@@ -109,134 +109,171 @@ def extract_coverage_info(text_segment: str) -> Dict[str, str]:
     return coverage
 
 def extract_benefits_from_text(text: str, filename: str) -> List[Dict]:
-    """Extract benefit information using intelligent pattern matching"""
+    """Extract benefit information dynamically from the document"""
     benefits = []
     
     # Split text into lines for better processing
     lines = text.split('\n')
     
-    # Look for benefit tables or sections
-    # Common patterns in SPDs
-    benefit_patterns = [
-        # Pattern for "Service: Coverage In-Network: X% Out-of-Network: Y%"
-        r'([A-Za-z\s\-/,&]+?)[\s:]+(?:In[\s\-]*Network|Network|Participating)[\s:]+(\d+%[^,\n]*)[,\s]+(?:Out[\s\-]*of[\s\-]*Network|Non[\s\-]*Network|Non[\s\-]*Participating)[\s:]+(\d+%[^\n]*)',
-        
-        # Pattern for benefits in table format with percentages
-        r'([A-Za-z\s\-/,&]+?)\s+(\d+%)\s+(?:of|after|coinsurance).*?\s+(\d+%)\s+(?:of|after|coinsurance)',
-        
-        # Pattern for "Benefit Name | In-Network | Out-of-Network"
-        r'([A-Za-z\s\-/,&]+?)\s*\|\s*(\d+%[^|]*)\s*\|\s*(\d+%[^|]*)',
-        
-        # Pattern for copay amounts
-        r'([A-Za-z\s\-/,&]+?)[\s:]+(?:In[\s\-]*Network|Network)[\s:]+\$(\d+)[,\s]+(?:Out[\s\-]*of[\s\-]*Network|Non[\s\-]*Network)[\s:]+\$(\d+)',
-        
-        # Pattern for "Service Type" followed by coverage info
-        r'([A-Za-z\s\-/,&]+?)(?:\n|\s{2,}).*?(\d+%)\s*(?:covered|coinsurance|of|after).*?(?:\n|\s{2,}).*?(\d+%)\s*(?:covered|coinsurance|of|after)',
-    ]
+    # Clean lines - remove extra spaces and empty lines
+    cleaned_lines = [line.strip() for line in lines if line.strip()]
     
-    # Additional patterns for finding benefit sections
-    section_headers = [
-        r'(?:medical|health|coverage|benefit|service)[\s\w]*(?:summary|schedule|table)',
-        r'(?:in[\s\-]*network|network)\s+(?:and|vs\.?)\s+(?:out[\s\-]*of[\s\-]*network|non[\s\-]*network)',
-        r'covered\s+(?:services|benefits|medical)',
-        r'(?:your|member)\s+(?:cost|responsibility|share)',
-    ]
-    
-    # Process the entire text to find benefit information
-    text_lower = text.lower()
-    
-    # Method 1: Look for structured benefit data
-    for i, line in enumerate(lines):
-        line_clean = line.strip()
-        if not line_clean:
+    # Method 1: Look for lines containing both In-Network and Out-of-Network percentages
+    for i, line in enumerate(cleaned_lines):
+        # Skip lines that are likely headers or page numbers
+        if any(skip in line.lower() for skip in ['page', 'effective date', 'plan id', 'summary', 'table of contents']):
             continue
             
-        # Check if this line contains percentage values
+        # Look for lines with percentage patterns
         if '%' in line:
-            # Get context (previous and next lines)
-            context_start = max(0, i - 3)
-            context_end = min(len(lines), i + 4)
-            context_lines = lines[context_start:context_end]
-            context = '\n'.join(context_lines)
+            # Pattern 1: Service name followed by two percentages
+            # Example: "Primary Care Physician Visit 80% 60%"
+            pattern1 = re.match(r'^([A-Za-z\s\-/,&\(\)]+?)\s+(\d+%)\s+(\d+%)', line)
+            if pattern1:
+                service = pattern1.group(1).strip()
+                in_network = pattern1.group(2)
+                out_network = pattern1.group(3)
+                
+                if len(service) > 3:  # Valid service name
+                    benefits.append({
+                        'service_category': service,
+                        'in_network_coverage': in_network,
+                        'out_of_network_coverage': out_network,
+                        'spd_file': filename
+                    })
+                    continue
             
-            # Try each pattern
-            for pattern in benefit_patterns:
-                matches = re.finditer(pattern, context, re.IGNORECASE | re.MULTILINE)
-                for match in matches:
-                    try:
-                        service = match.group(1).strip()
-                        in_network = match.group(2).strip()
-                        out_network = match.group(3).strip()
-                        
-                        # Clean up the service name
-                        service = re.sub(r'\s+', ' ', service)
-                        service = service.strip(' :|,-')
-                        
-                        # Skip if service name is too short or contains unwanted patterns
-                        if len(service) < 3 or any(skip in service.lower() for skip in ['page', 'date', 'plan', 'effective']):
-                            continue
-                        
-                        # Format coverage information
-                        if '%' not in in_network:
-                            in_network = in_network + '%'
-                        if '%' not in out_network:
-                            out_network = out_network + '%'
-                        
-                        # Add any additional context (like "after deductible")
-                        if 'deductible' in context_lower:
-                            if 'after deductible' not in in_network.lower():
-                                in_network += ' after deductible'
-                            if 'after deductible' not in out_network.lower():
-                                out_network += ' after deductible'
-                        
-                        benefit = {
-                            'service_category': service.title(),
-                            'in_network_coverage': in_network,
-                            'out_of_network_coverage': out_network,
+            # Pattern 2: Service on one line, percentages on next line(s)
+            # Check if next line has percentages
+            if i + 1 < len(cleaned_lines) and '%' in cleaned_lines[i + 1]:
+                next_line = cleaned_lines[i + 1]
+                percentages = re.findall(r'(\d+%)', next_line)
+                
+                if len(percentages) >= 2 and not '%' in line:
+                    # Current line might be the service name
+                    service = line.strip()
+                    if len(service) > 3 and len(service) < 100 and not any(char.isdigit() for char in service[:3]):
+                        benefits.append({
+                            'service_category': service,
+                            'in_network_coverage': percentages[0],
+                            'out_of_network_coverage': percentages[1],
                             'spd_file': filename
-                        }
-                        
-                        # Check for duplicates
-                        if not any(b['service_category'] == benefit['service_category'] for b in benefits):
-                            benefits.append(benefit)
-                    except:
+                        })
                         continue
     
-    # Method 2: Look for common benefit categories with their coverage
-    common_services = [
-        'preventive care', 'office visit', 'specialist', 'emergency', 'urgent care',
-        'hospital', 'surgery', 'maternity', 'mental health', 'substance abuse',
-        'therapy', 'rehabilitation', 'laboratory', 'x-ray', 'imaging', 'mri', 'ct scan',
-        'prescription', 'generic', 'brand', 'specialty drug', 'dental', 'vision',
-        'hearing', 'durable medical equipment', 'home health', 'skilled nursing',
-        'hospice', 'ambulance', 'chiropractic', 'inpatient', 'outpatient',
-        'diagnostic', 'primary care physician', 'pcp visit', 'specialist visit',
-        'emergency room', 'urgent care center', 'physical therapy', 'occupational therapy',
-        'speech therapy', 'cardiac rehabilitation', 'pulmonary rehabilitation'
-    ]
+    # Method 2: Look for table-like structures with clear In-Network/Out-of-Network columns
+    in_network_indices = []
+    out_network_indices = []
     
-    for service in common_services:
-        # Find if this service is mentioned in the text
-        service_pattern = re.compile(rf'{service}.*?(\d+%)[^%]*?(\d+%)', re.IGNORECASE | re.DOTALL)
-        matches = service_pattern.finditer(text)
+    # Find header rows
+    for i, line in enumerate(cleaned_lines):
+        if 'in-network' in line.lower() or 'in network' in line.lower():
+            # This might be a header row
+            if 'out-of-network' in line.lower() or 'out of network' in line.lower() or 'non-network' in line.lower():
+                # Found a header with both network types
+                # Try to parse the table below this header
+                for j in range(i + 1, min(i + 50, len(cleaned_lines))):  # Look at next 50 lines
+                    table_line = cleaned_lines[j]
+                    
+                    # Extract percentages from this line
+                    percentages = re.findall(r'(\d+%)', table_line)
+                    
+                    if len(percentages) >= 2:
+                        # Find the service name - could be at the beginning of this line or on a previous line
+                        service_name = ""
+                        
+                        # Check if service name is at the start of current line
+                        service_match = re.match(r'^([A-Za-z\s\-/,&\(\)]+?)(?:\s+\d+%|\s*$)', table_line)
+                        if service_match:
+                            service_name = service_match.group(1).strip()
+                        else:
+                            # Look at previous line for service name
+                            if j > 0:
+                                prev_line = cleaned_lines[j - 1]
+                                if not '%' in prev_line and len(prev_line) > 3:
+                                    service_name = prev_line.strip()
+                        
+                        if service_name and len(service_name) > 3:
+                            # Remove any trailing colons or dashes
+                            service_name = service_name.rstrip(':- ')
+                            
+                            benefits.append({
+                                'service_category': service_name,
+                                'in_network_coverage': percentages[0],
+                                'out_of_network_coverage': percentages[1],
+                                'spd_file': filename
+                            })
+    
+    # Method 3: Look for specific patterns like "Service: In-Network: X% Out-of-Network: Y%"
+    pattern = re.compile(
+        r'([A-Za-z\s\-/,&\(\)]+?)[\s:]+' +
+        r'(?:In[\s\-]*Network|Network|Participating)[\s:]+(\d+%)' +
+        r'.*?' +
+        r'(?:Out[\s\-]*of[\s\-]*Network|Non[\s\-]*Network|Non[\s\-]*Participating)[\s:]+(\d+%)',
+        re.IGNORECASE | re.DOTALL
+    )
+    
+    matches = pattern.finditer(text)
+    for match in matches:
+        service = match.group(1).strip().rstrip(':- ')
+        in_network = match.group(2)
+        out_network = match.group(3)
         
-        for match in matches:
-            try:
+        if len(service) > 3:
+            benefit = {
+                'service_category': service,
+                'in_network_coverage': in_network,
+                'out_of_network_coverage': out_network,
+                'spd_file': filename
+            }
+            # Check for duplicates
+            if not any(b['service_category'].lower() == benefit['service_category'].lower() for b in benefits):
+                benefits.append(benefit)
+    
+    # Method 4: Extract from structured benefit listings
+    # Look for sections that list benefits with clear percentage values
+    benefit_section = False
+    current_service = ""
+    
+    for i, line in enumerate(cleaned_lines):
+        # Check if we're in a benefits section
+        if any(keyword in line.lower() for keyword in ['covered services', 'benefit summary', 'coverage level', 'member cost share']):
+            benefit_section = True
+            continue
+        
+        if benefit_section:
+            # Look for service names followed by coverage info
+            if line and not '%' in line and not any(char.isdigit() for char in line[:3]):
+                # Potential service name
+                if len(line) > 3 and len(line) < 100:
+                    current_service = line.strip().rstrip(':- ')
+            
+            elif current_service and '%' in line:
                 # Extract percentages
-                percentages = re.findall(r'(\d+%)', match.group(0))
+                percentages = re.findall(r'(\d+%)', line)
                 if len(percentages) >= 2:
-                    # Get the full context
-                    full_match = match.group(0)
-                    
-                    # Determine which is in-network vs out-of-network
-                    in_network_cov = percentages[0]
-                    out_network_cov = percentages[1]
-                    
-                    # Add context about deductibles if present
-                    if 'after deductible' in full_match.lower():
-                        in_network_cov += ' after deductible'
-                        out_network_cov += ' after deductible'
-                    elif 'copay' in full_match.lower() or '$' in full_match:
+                    benefit = {
+                        'service_category': current_service,
+                        'in_network_coverage': percentages[0],
+                        'out_of_network_coverage': percentages[1],
+                        'spd_file': filename
+                    }
+                    # Check for duplicates
+                    if not any(b['service_category'].lower() == benefit['service_category'].lower() for b in benefits):
+                        benefits.append(benefit)
+                    current_service = ""  # Reset for next service
+    
+    # Remove any duplicate entries based on service category
+    unique_benefits = []
+    seen_services = set()
+    
+    for benefit in benefits:
+        service_lower = benefit['service_category'].lower()
+        if service_lower not in seen_services:
+            seen_services.add(service_lower)
+            unique_benefits.append(benefit)
+    
+    return unique_benefits
 
 def generate_hrl_syntax(benefits_df: pd.DataFrame) -> str:
     """Generate HRL syntax from extracted benefits"""
