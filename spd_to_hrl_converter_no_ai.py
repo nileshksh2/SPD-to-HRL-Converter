@@ -28,30 +28,25 @@ st.markdown("""
     header {visibility: hidden;}
     
     /* CSS Reset and Variables */
- :root {
-, 0, 0.4);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    
-    --radius: 0.5rem;
-}
-    --primary-bg: #B0BEC5; /* Slightly darker than original */
-    --primary-bg-light: #CFD8DC; /* Light but with more contrast */
-    --primary-bg-dark: #90A4AE; /* Darker for contrast sections */
-
-    --text-white: #ffffff;
-    --text-light: #f0f0f0; /* Slightly darker than pure white */
-    --text-muted: #d0d0d0; /* More visible muted text */
-    
-    --border-light: rgba(0, 0, 0, 0.15); /* Darker border for visibility */
-    --surface-light: rgba(255, 255, 255, 0.2); /* Slightly more opaque */
-    
-    --shadow: 0 4px 6px -1px rgba(0, 0
+    :root {
+        --primary-bg: #163f82;
+        --primary-bg-light: #1e4f9e;
+        --primary-bg-dark: #0f2f62;
+        --text-white: #ffffff;
+        --text-light: rgba(255, 255, 255, 0.9);
+        --text-muted: rgba(255, 255, 255, 0.7);
+        --border-light: rgba(255, 255, 255, 0.2);
+        --surface-light: rgba(255, 255, 255, 0.1);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        --radius: 0.5rem;
+    }
     
     /* Global styles */
     .stApp {
         font-family: 'Montserrat', 'Aventa', -apple-system, BlinkMacSystemFont, sans-serif;
         background-color: var(--primary-bg);
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     /* Main container adjustments */
@@ -70,7 +65,7 @@ st.markdown("""
         align-items: center;
         margin-bottom: 2rem;
         padding: 1rem 0;
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-dark);
     }
     
     .header-left {
@@ -81,14 +76,14 @@ st.markdown("""
         font-family: 'Montserrat', 'Aventa', sans-serif;
         font-size: 2rem;
         font-weight: 700;
-        color: var(--text-white);
+        color: var(--text-primary);
         margin: 0;
         letter-spacing: -0.025em;
     }
     
     .header-subtitle {
         font-size: 1rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin: 0.25rem 0 0 0;
         font-weight: 400;
     }
@@ -108,7 +103,7 @@ st.markdown("""
     .stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--text-white);
+        color: var(--accent-blue);
         line-height: 1;
         margin-bottom: 0.25rem;
     }
@@ -136,19 +131,18 @@ st.markdown("""
     
     /* Card component */
     .custom-card {
-        background: var(--surface-light);
+        background: var(--surface-white);
         border: 1px solid var(--border-light);
         border-radius: var(--radius);
         padding: 1.5rem;
         box-shadow: var(--shadow);
         height: 100%;
-        backdrop-filter: blur(10px);
     }
     
     .card-header {
         font-size: 1.125rem;
         font-weight: 600;
-        color: var(--text-white);
+        color: var(--text-primary);
         margin: 0 0 1rem 0;
         padding-bottom: 1rem;
         border-bottom: 1px solid var(--border-light);
@@ -167,19 +161,19 @@ st.markdown("""
     
     /* File upload area styling */
     [data-testid="stFileUploadDropzone"] {
-        background: var(--surface-light) !important;
-        border: 2px dashed var(--border-light) !important;
+        background: var(--surface-white) !important;
+        border: 2px dashed var(--border-dark) !important;
         border-radius: var(--radius) !important;
         min-height: 120px;
     }
     
     [data-testid="stFileUploadDropzone"]:hover {
-        border-color: var(--text-white) !important;
-        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: var(--accent-blue) !important;
+        background: var(--surface-light) !important;
     }
     
     [data-testid="stFileUploadDropzone"] label {
-        color: var(--text-white) !important;
+        color: var(--text-primary) !important;
     }
     
     [data-testid="stFileUploadDropzone"] small {
@@ -192,22 +186,22 @@ st.markdown("""
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 1rem;
-        background: var(--surface-light);
+        background: var(--primary-bg-light);
         border: 1px solid var(--border-light);
         border-radius: 0.375rem;
         margin-bottom: 0.5rem;
         font-size: 0.875rem;
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     .uploaded-file-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: var(--text-white);
+        background: var(--surface-light);
+        border-color: var(--accent-blue);
     }
     
     .file-name {
         font-weight: 500;
-        color: var(--text-white);
+        color: var(--text-primary);
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -220,8 +214,8 @@ st.markdown("""
     
     /* Buttons */
     .stButton > button {
-        background: var(--text-black);
-        color: var(--primary-bg);
+        background: var(--accent-blue);
+        color: var(--text-white);
         border: none;
         border-radius: var(--radius);
         padding: 0.625rem 1.5rem;
@@ -234,14 +228,14 @@ st.markdown("""
     }
     
     .stButton > button:hover {
-        background: rgba(208, 126, 126, 0.9);
+        background: var(--accent-blue-dark);
         box-shadow: var(--shadow-lg);
         transform: translateY(-1px);
     }
     
     .stButton > button:disabled {
-        background: var(--text-muted);
-        color: var(--primary-bg);
+        background: var(--border-dark);
+        color: var(--text-muted);
         cursor: not-allowed;
         transform: none;
         opacity: 0.6;
@@ -254,45 +248,50 @@ st.markdown("""
         border: 1px solid;
         font-size: 0.875rem;
         margin: 0.5rem 0;
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     .stSuccess {
+        background: #d1fae5;
         border-color: #10b981;
+        color: #065f46;
     }
     
     .stError {
+        background: #fee2e2;
         border-color: #ef4444;
+        color: #991b1b;
     }
     
     .stInfo {
+        background: #dbeafe;
         border-color: #3b82f6;
+        color: #1e40af;
     }
     
     /* Progress bar */
     .stProgress > div > div {
-        background: var(--text-white);
+        background: var(--accent-blue);
         height: 0.5rem;
     }
     
     .stProgress {
-        background: var(--surface-light);
+        background: var(--border-light);
         border-radius: 0.25rem;
         overflow: hidden;
     }
     
     /* Data editor */
     .stDataEditor {
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--border-dark);
         border-radius: var(--radius);
         overflow: hidden;
-        background: var(--surface-light);
+        background: var(--surface-white);
     }
     
     [data-testid="StyledDataTable"] {
         font-size: 0.875rem;
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     /* Tabs */
@@ -301,7 +300,7 @@ st.markdown("""
     }
     
     .stTabs [data-baseweb="tab-list"] {
-        background: var(--surface-light);
+        background: var(--surface-white);
         border-radius: var(--radius);
         padding: 0.25rem;
         gap: 0.25rem;
@@ -313,71 +312,71 @@ st.markdown("""
         border-radius: 0.375rem;
         font-weight: 500;
         font-size: 0.875rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         padding: 0.5rem 1rem;
     }
     
     .stTabs [aria-selected="true"] {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--accent-blue);
         color: var(--text-white);
     }
     
     /* Code blocks */
     .stCodeBlock {
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--border-dark);
         border-radius: var(--radius);
         overflow: hidden;
     }
     
     .stCodeBlock pre {
-        background: rgba(0, 0, 0, 0.3) !important;
-        color: var(--text-white) !important;
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
         margin: 0 !important;
     }
     
     /* Expander */
     .streamlit-expanderHeader {
-        background: var(--surface-light);
+        background: var(--surface-white);
         border: 1px solid var(--border-light);
         border-radius: var(--radius);
         font-weight: 500;
         font-size: 0.875rem;
-        color: var(--text-white);
+        color: var(--text-primary);
         padding: 0.75rem 1rem;
     }
     
     .streamlit-expanderHeader:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: var(--text-white);
+        background: var(--surface-light);
+        border-color: var(--accent-blue);
     }
     
     .streamlit-expanderContent {
-        background: var(--surface-light);
+        background: var(--surface-white);
         border: 1px solid var(--border-light);
         border-top: none;
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     /* Text inputs */
     .stTextInput > div > div {
-        background: var(--surface-light);
-        border: 1px solid var(--border-light);
+        background: var(--surface-white);
+        border: 1px solid var(--border-dark);
         border-radius: 0.375rem;
         font-size: 0.875rem;
-        color: var(--text-white);
+        color: var(--text-primary);
     }
     
     .stTextInput > div > div:focus-within {
-        border-color: var(--text-white);
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
     
     .stTextInput label {
-        color: var(--text-white) !important;
+        color: var(--text-primary) !important;
     }
     
     .stTextInput input {
-        color: var(--text-white) !important;
+        color: var(--text-primary) !important;
     }
     
     .stTextInput input::placeholder {
@@ -387,13 +386,13 @@ st.markdown("""
     /* Download button */
     .stDownloadButton > button {
         background: transparent;
-        color: var(--text-white);
-        border: 1px solid var(--text-white);
+        color: var(--accent-blue);
+        border: 1px solid var(--accent-blue);
     }
     
     .stDownloadButton > button:hover {
-        background: var(--text-white);
-        color: var(--primary-bg);
+        background: var(--accent-blue);
+        color: var(--text-white);
     }
     
     /* Footer */
@@ -425,9 +424,13 @@ st.markdown("""
         margin: 2rem 0;
     }
     
-    /* All text should be white */
-    p, span, div, label, h1, h2, h3, h4, h5, h6 {
-        color: var(--text-white) !important;
+    /* All text should be dark for contrast */
+    p, span, div, label {
+        color: var(--text-primary) !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary) !important;
     }
     
     /* Responsive */
@@ -822,7 +825,6 @@ def main():
     # How it works section
     with st.expander("ℹ️ How This Works", expanded=False):
         st.markdown("""
-        <div style="color: white;">
         This tool uses advanced pattern matching to extract benefit information:
         
         • ✅ **Dynamically extracts service categories** from your document  
@@ -831,8 +833,7 @@ def main():
         • ✅ **Generates HRL syntax** automatically based on patterns
         
         *Best results with SPDs using standard formatting and clear percentage values.*
-        </div>
-        """, unsafe_allow_html=True)
+        """)
     
     # File Upload Section - Using columns for proper alignment
     st.markdown('<div class="upload-section">', unsafe_allow_html=True)
