@@ -215,7 +215,7 @@ st.markdown("""
     
     /* Buttons */
     .stButton > button {
-        background: var(--text-white);
+        background: var(--text-black);
         color: var(--primary-bg);
         border: none;
         border-radius: var(--radius);
